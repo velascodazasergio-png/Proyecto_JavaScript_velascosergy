@@ -1,8 +1,4 @@
-/* ═══════════════════════════════════════════════
-   CampusBuild — style.css
-═══════════════════════════════════════════════ */
-
-@import url('https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;500&display=swap');
 
 *, *::before, *::after {
   margin: 0;
@@ -10,190 +6,258 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bg-deep: #010a16;
+  --blue-bright: #1a6fff;
+  --blue-glow: #2d8aff;
+  --blue-pale: #4da6ff;
+  --text-white: #e8f0ff;
+  --text-muted: #8aaed4;
+}
+
 html, body {
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: #00000a;
+  min-height: 100%;
+  overflow-x: hidden;
 }
 
-/* ── Canvas espacial — base absoluta, llena toda la pantalla ── */
-#space {
+body {
+  background: var(--bg-deep);
+  font-family: 'Exo 2', sans-serif;
+  color: var(--text-white);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* El canvas ocupa toda la pantalla fijo */
+#galaxy-canvas {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   z-index: 0;
-  display: block;
+  pointer-events: none;
 }
 
-/* ── Escena UI — encima del canvas ── */
-.scene {
+/* ── Navbar ── */
+.navbar {
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 36px;
+  background: linear-gradient(to bottom, rgba(1,10,22,0.75) 0%, transparent 100%);
+}
+
+.navbar-brand {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--text-white);
+}
+
+.btn-info-nav {
+  font-family: 'Exo 2', sans-serif;
+  font-size: clamp(0.62rem, 1.5vw, 0.72rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #fff;
+  background: var(--blue-bright);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+
+.btn-info-nav:hover {
+  background: var(--blue-glow);
+  transform: translateY(-1px);
+}
+
+/* ── Hero ── */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 60px;
+  padding: 120px 80px 80px;
+}
+
+.hero-content {
+  flex: 1;
+  max-width: 560px;
+  animation: fadeInLeft 0.9s ease both;
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.hero-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 700;
+  color: var(--text-white);
+  margin-bottom: 22px;
+  line-height: 1.1;
+}
+
+.hero-description {
+  font-size: clamp(0.82rem, 1.5vw, 1rem);
+  font-weight: 300;
+  color: var(--text-muted);
+  line-height: 1.75;
+  margin-bottom: 36px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  font-family: 'Exo 2', sans-serif;
+  font-size: clamp(0.75rem, 1.5vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: #fff;
+  background: var(--blue-bright);
+  border: none;
+  border-radius: 5px;
+  padding: 11px 26px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-primary:hover {
+  background: var(--blue-glow);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  font-family: 'Exo 2', sans-serif;
+  font-size: clamp(0.75rem, 1.5vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--text-white);
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.45);
+  border-radius: 5px;
+  padding: 11px 26px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--blue-pale);
+  background: rgba(45, 138, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+/* ── Contenedor Spline — sin marco, fondo transparente ── */
+.hero-spline {
+  flex: 0 0 auto;
+  width: min(42vw, 440px);
+  height: min(42vw, 400px);
+  position: relative;      /* para el overlay del badge */
+  overflow: hidden;        /* para que el overlay corte bien */
+  border: none;            /* sin marco */
+  border-radius: 12px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInRight 0.9s ease both;
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+spline-viewer {
   width: 100%;
   height: 100%;
+}
+
+/* ── Dots ── */
+.dots-nav {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 10;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
+  gap: 8px;
 }
 
-/* ── Hero: imagen + título en fila ── */
-.hero {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 44px;
-}
-
-/* ── Contenedor aura ── */
-.aura-scene {
-  position: relative;
-  width: 160px;
-  height: 160px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Canvas 2D del aura — centrado sobre la imagen */
-#photo-aura-canvas {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 320px;
-  height: 320px;
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* Imagen orbit flotando */
-.orbit-img {
-  position: relative;
-  z-index: 2;
-  width: 150px;
-  height: 150px;
-  object-fit: contain;
+.dot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  animation: floatOrbit 5s ease-in-out infinite;
-  filter:
-    drop-shadow(0 0 10px rgba(165, 153, 246, 0.9))
-    drop-shadow(0 0 30px rgba(16, 85, 158, 0.5));
-}
-
-@keyframes floatOrbit {
-  0%,100% { transform: translateY(0px)   rotate(-3deg); }
-  25%      { transform: translateY(-9px)  rotate(-1deg); }
-  50%      { transform: translateY(-18px) rotate(3deg);  }
-  75%      { transform: translateY(-7px)  rotate(1deg);  }
-}
-
-/* ── Título ── */
-.title {
-  font-family: 'Pinyon Script', cursive;
-  font-style: italic;
-  font-weight: 400;
-  font-size: clamp(3.5rem, 9vw, 8rem);
-  color: #5cd4ff;
-  white-space: nowrap;
-  user-select: none;
-  line-height: 1;
-  text-shadow:
-    0 0  6px #5cd4ff,
-    0 0 16px #2299ee,
-    0 0 32px #0066cc,
-    0 0 64px #003399,
-     1px  1px 0 #002255,
-    -1px -1px 0 #002255,
-     1px -1px 0 #002255,
-    -1px  1px 0 #002255,
-     2px  2px 0 #001133,
-    -2px -2px 0 #001133,
-     2px -2px 0 #001133,
-    -2px  2px 0 #001133,
-    0 0  3px #88eeff;
-}
-
-/* ── Botón ── */
-.btn-wrap {
-  margin-top: 52px;
-  pointer-events: all;
-}
-
-.btn-init {
-  position: relative;
-  background: transparent;
-  border: none;
+  background: rgba(255,255,255,0.25);
+  transition: background 0.3s;
   cursor: pointer;
-  padding: 0;
-  outline: none;
 }
 
-.btn-text {
-  display: block;
-  position: relative;
-  z-index: 3;
-  background: #000;
-  color: #fff;
-  font-family: 'Courier New', monospace;
-  font-size: clamp(1rem, 2vw, 1.4rem);
-  font-weight: 700;
-  letter-spacing: 10px;
-  text-transform: uppercase;
-  padding: 18px 70px 18px 76px;
-  border-radius: 5px;
-  transition: letter-spacing 0.25s ease, opacity 0.2s;
+.dot.active {
+  background: var(--blue-pale);
 }
 
-.btn-init:hover  .btn-text { letter-spacing: 14px; }
-.btn-init:active .btn-text { opacity: 0.8; transform: scale(0.97); }
+/* ══ RESPONSIVE ══ */
 
-.btn-init::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: 8px;
-  z-index: 1;
-  background: conic-gradient(
-    from var(--angle, 0deg),
-    #0420d5, #5786cd, #0d1737,
-    #8fd4ff, #00d4ff, #196f91, #ffffff
-  );
-  animation: rotate-border 2.8s linear infinite;
+@media (max-width: 1024px) {
+  .hero { gap: 36px; padding: 110px 50px 70px; }
+  .hero-spline { width: min(46vw, 400px); height: min(46vw, 380px); }
 }
 
-.btn-init::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 6px;
-  z-index: 2;
-  background: #000;
+@media (max-width: 860px) {
+  .hero {
+    flex-direction: column;
+    padding: 100px 32px 60px;
+    gap: 40px;
+    text-align: center;
+  }
+  .hero-content { max-width: 100%; }
+  .hero-buttons { justify-content: center; }
+  .hero-spline { width: 80vw; height: 60vw; max-width: 420px; max-height: 380px; }
+  .navbar { padding: 14px 24px; }
 }
 
-@property --angle {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
+@media (max-width: 600px) {
+  .navbar { padding: 12px 16px; }
+  .hero { padding: 90px 20px 50px; gap: 30px; }
+  .hero-spline { width: 90vw; height: 68vw; }
+  .hero-buttons { flex-direction: column; align-items: center; gap: 10px; }
+  .btn-primary, .btn-secondary { width: 100%; max-width: 260px; text-align: center; }
+  .dots-nav { bottom: 18px; }
 }
 
-@keyframes rotate-border {
-  to { --angle: 360deg; }
+@media (max-width: 380px) {
+  .navbar-brand { font-size: 1rem; }
+  .btn-info-nav { padding: 6px 12px; font-size: 0.58rem; }
+  .hero-spline { width: 94vw; height: 72vw; }
 }
 
-/* ── Responsive ── */
-@media (max-width: 680px) {
-  .hero              { flex-direction: column; gap: 16px; }
-  .aura-scene        { width: 120px; height: 120px; }
-  .orbit-img         { width: 110px; height: 110px; }
-  #photo-aura-canvas { width: 220px; height: 220px; }
-  .btn-text          { letter-spacing: 6px; padding: 14px 44px 14px 50px; }
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero { flex-direction: row; padding: 70px 30px 30px; gap: 24px; min-height: unset; }
+  .hero-spline { width: 38vw; height: 55vw; max-height: 260px; }
+  .hero-title { font-size: 1.8rem; margin-bottom: 12px; }
+  .hero-description {
+    font-size: 0.78rem; margin-bottom: 18px;
+    -webkit-line-clamp: 4; display: -webkit-box;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
 }

@@ -1,35 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CampusBuild</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style .css"/>
+  <title>CampusBuild - Formaciones Académicas</title>
+  <link rel="stylesheet" href="style .css" />
   <link rel="shortcut icon" href="img/icono_redondo.png" type="image/x-icon">
+  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.81/build/spline-viewer.js"></script>
 </head>
 <body>
 
-  <canvas id="space"></canvas>
+  <!-- Fondo animado -->
+  <canvas id="galaxy-canvas"></canvas>
 
-  <div class="scene">
-    <div class="hero">
-      <div class="aura-scene">
-        <canvas id="photo-aura-canvas"></canvas>
-        <img src="img/orbit.png" alt="Orbit" class="orbit-img"/>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-brand">CAMPUSBUILD</div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Inicio</h1>
+      <p class="hero-description">
+        CampusBuild, empresa líder en construcción, busca optimizar la gestión de sus proyectos
+        mediante el desarrollo de una aplicación web personalizada. Esta plataforma permitirá
+        centralizar la planificación, seguimiento de actividades, control de hitos y asignación
+        de recursos humanos en todas las etapas del proyecto. Con una interfaz intuitiva y un
+        enfoque en la colaboración, la herramienta facilitará la toma de decisiones, mejorará
+        la coordinación de los equipos y aumentará la eficiencia operativa en cada obra.
+      </p>
+      <div class="hero-buttons">
+        <button class="btn-primary">Ver página</button>
+        <button class="btn-secondary">Creador</button>
       </div>
-      <h1 class="title">CampusBuild</h1>
     </div>
-    <div class="btn-wrap">
-      <button class="btn-init">
-        <span class="btn-text">init</span>
-      </button>
+
+    <div class="hero-spline">
+      <spline-viewer url="https://prod.spline.design/ZXK8zHXl5zTQ7O0i/scene.splinecode"></spline-viewer>
     </div>
+  </section>
+
+  <!-- Dots indicadores -->
+  <div class="dots-nav">
+    <span class="dot active"></span>
+    <span class="dot"></span>
+    <span class="dot"></span>
   </div>
 
+  <!-- IMPORTANTE: cargar DESPUÉS del DOM -->
   <script src="fuctions.js"></script>
-  <script src="aura.js"></script>
-
 </body>
 </html>
