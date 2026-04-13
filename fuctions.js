@@ -144,7 +144,7 @@ const PLANET_DEFS = [
   /* Pequeño planeta marrón rojizo (top-center) */
   {
     cx: 0.50, cy: 0.05, r: 16,
-    colors: ['#bb5533','#882211','#441100'],
+    colors: ['#bb5533','#882211','#4e0000'],
     rings: false, moons: 0, layer: 0.35,
     bands: [],
   },

@@ -33,7 +33,7 @@
     { radiusX: 90,  radiusY: 26, color: '#0d0551', lineW: 2.2, opacity: 0.55, speed:  0.007, angle: 0.4  },
     { radiusX: 108, radiusY: 32, color: '#157de6', lineW: 1.4, opacity: 0.35, speed: -0.004, angle: -0.7 },
     { radiusX: 74,  radiusY: 20, color: '#3872f9', lineW: 2.8, opacity: 0.40, speed: -0.010, angle: -0.2 },
-    { radiusX: 126, radiusY: 38, color: '#ffd6e7', lineW: 1.0, opacity: 0.18, speed:  0.0025, angle: 0.9 },
+    { radiusX: 126, radiusY: 38, color: '#ffffff', lineW: 1.0, opacity: 0.18, speed:  0.0025, angle: 0.9 },
   ];
 
   /* Partículas orbitales */
