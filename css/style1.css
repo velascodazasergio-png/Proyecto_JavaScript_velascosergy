@@ -560,12 +560,152 @@ tr:hover td      { background: rgba(0,212,255,0.04); }   /* Hover sutil en filas
    RESPONSIVE
    Ajustes para pantallas pequeñas.
 ══════════════════════════ */
-@media (max-width: 1100px) {
-  .stats-grid { grid-template-columns: repeat(2,1fr); }
+/* ══════════════════════════
+RESPONSIVE - BARRA INFERIOR
+Ajustes para pantallas móviles.
+Transforma el sidebar en una barra inferior.
+══════════════════════════ */
+/* ── 1. TABLETS Y PANTALLAS MEDIANAS (Hasta 1024px) ── */
+@media (max-width: 1024px) {
+  :root { 
+    --sidebar-w: 200px; /* Reducimos un poco el sidebar */
+  }
+  
+  .content {
+    padding: 20px; /* Menos espacio en blanco */
+  }
+
+  /* Las tablas deben poder deslizarse si no caben */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
-@media (max-width: 700px) {
-  :root { --sidebar-w: 0px; }
-  .sidebar { display: none; }              /* Oculta sidebar en móvil */
-  .content { padding: 16px; }
-  .stats-grid { grid-template-columns: repeat(2,1fr); }
+
+/* ── 2. MÓVILES (Hasta 768px - Cubre desde 393px) ── */
+@media (max-width: 768px) {
+  :root { 
+    --sidebar-w: 0px; 
+  }
+
+  /* ── Barra Superior y Contenido ── */
+  .topbar {
+    padding: 0 16px; /* Liberar espacio lateral en pantallas pequeñas */
+  }
+  
+  .main {
+    margin-left: 0; 
+    padding-bottom: 70px; /* Espacio exacto para la barra inferior */
+  }
+
+  .content {
+    padding: 16px;
+  }
+
+  /* ── Encabezados de página y botones ── */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page-header .btn-primary {
+    width: 100%; /* Botones de acción ocupan todo el ancho en móvil */
+    justify-content: center;
+  }
+
+  /* ── Navegación Inferior (Sidebar transformado) ── */
+  .sidebar {
+    display: flex !important; 
+    position: fixed;
+    bottom: 0;
+    top: auto;
+    left: 0;
+    width: 100%;
+    height: 65px; 
+    flex-direction: row; 
+    justify-content: space-between; 
+    align-items: center;
+    background: rgba(5, 10, 20, 0.95); 
+    backdrop-filter: blur(12px);
+    border-right: none;
+    border-top: 1px solid var(--border-accent); 
+    padding: 0 10px; /* Pequeño padding lateral para que los iconos no toquen los bordes en 393px */
+    z-index: 1000;
+  }
+
+  .sidebar-logo { display: none !important; }
+
+  .nav {
+    flex-direction: row;
+    width: 100%;
+    padding: 0;
+    justify-content: space-between; /* Distribuye uniformemente */
+    overflow: hidden;
+    gap: 0;
+  }
+
+  .nav-item {
+    flex-direction: column; 
+    padding: 6px 4px;
+    font-size: 9px; /* Fuente más pequeña para que quepan 6 items en 393px */
+    gap: 4px;
+    border-radius: var(--radius-sm);
+    width: auto;
+    background: none;
+    border: none;
+    text-align: center;
+  }
+
+  .nav-item svg {
+    width: 20px; 
+    height: 20px;
+    opacity: 0.7;
+    margin: 0 auto;
+  }
+
+  .nav-item.active { 
+    background: rgba(0,212,255,0.08); 
+    color: var(--accent-1);
+  }
+
+  /* ── Formularios en Modales (Para evitar que se aplasten en 393px) ── */
+  .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── Grid de Estadísticas ── */
+  .stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    flex-direction: column; 
+    align-items: flex-start;
+    padding: 12px; 
+    gap: 8px;
+  }
+
+  .stat-icon {
+    width: 32px !important; 
+    height: 32px !important;
+    font-size: 14px;
+  }
+
+  /* ── Calendario ── */
+  .calendar-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .calendar-container table {
+    min-width: 500px; /* Fuerza el scroll horizontal en vez de aplastar las celdas */
+  }
 }
+
