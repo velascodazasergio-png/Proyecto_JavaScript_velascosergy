@@ -1,34 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- =============================================
-      META & CONFIGURACIÓN BÁSICA
-      Configuración de charset, viewport y SEO básico
-============================================= -->
+  <!-- =============================================
+       META & CONFIGURACIÓN BÁSICA
+       Configuración de charset, viewport y SEO básico
+  ============================================= -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Portafolio de Sergio Velasco — Desarrollador Front-End" />
-  <link rel="shortcut icon" href="../img/icono_redondo.png" type="image/x-icon">
   <title>Sergio Velasco · Dev</title>
 
-<!-- =============================================
-      FUENTES GOOGLE
-      Fuentes distintivas para dar personalidad al sitio
-============================================= -->
+  <!-- =============================================
+       FUENTES GOOGLE
+       Fuentes distintivas para dar personalidad al sitio
+  ============================================= -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
 
-<!-- =============================================
-      THREE.JS — librería 3D para el aura canvas
-      Se carga antes de los scripts del sitio
-============================================= -->
+  <!-- =============================================
+       THREE.JS — librería 3D para el aura canvas
+       Se carga antes de los scripts del sitio
+  ============================================= -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
 
-<!-- =============================================
-      HOJA DE ESTILOS PRINCIPAL
-      Enlace al CSS separado del proyecto
-============================================= -->
+  <!-- =============================================
+       HOJA DE ESTILOS PRINCIPAL
+       Enlace al CSS separado del proyecto
+  ============================================= -->
   <link rel="stylesheet" href="../css/creditos-style.css" />
 </head>
 <body>
@@ -39,6 +38,29 @@
        Controlado por bg-canvas.js
   ============================================= -->
   <canvas id="bg-canvas"></canvas>
+
+  <!-- =============================================
+       NAVBAR SUPERIOR
+       Barra de navegación fija con logo CAMPUSBUILD
+       y botones de acceso rápido: Init y Página
+  ============================================= -->
+  <header class="navbar">
+
+    <!-- Logo / nombre del proyecto -->
+    <span class="navbar-logo">CAMPUS<span class="logo-accent">BUILD</span></span>
+
+    <!-- Botones de navegación -->
+    <nav class="navbar-btns" aria-label="Navegación principal">
+
+      <!-- Botón Init — reemplaza # por la URL de inicio/login -->
+      <a href="../index.html" class="nav-btn nav-btn--ghost">Init</a>
+
+      <!-- Botón Página — reemplaza # por la URL de la página principal -->
+      <a href="../html/index (2).html" class="nav-btn nav-btn--solid">Página</a>
+
+    </nav>
+
+  </header>
 
   <!-- =============================================
        SECCIÓN HERO — PRIMERA VISTA
@@ -112,7 +134,7 @@
       <span class="chip">HTML</span>
       <span class="chip">CSS</span>
       <span class="chip">JavaScript</span>
-      <span class="chip">react</span>
+      <span class="chip">React</span>
       <span class="chip">Diseño Gráfico</span>
     </div>
 

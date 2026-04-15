@@ -514,7 +514,48 @@ td {
 }
 tr:last-child td { border-bottom: none; }
 tr:hover td      { background: rgba(0,212,255,0.04); }   /* Hover sutil en filas */
+/* ══════════════════════════
+   NAV SECUNDARIA
+   Barra de navegación con links Inicio/Créditos
+══════════════════════════ */
+.secondary-nav {
+  background: rgba(3,7,16,0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+}
 
+.nav-links {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-link {
+  padding: 6px 14px;
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.nav-link:hover {
+  background: rgba(0,212,255,0.08);
+  color: var(--text);
+  border-color: rgba(0,212,255,0.15);
+}
+
+.nav-link.active {
+  background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(124,58,237,0.12));
+  color: var(--accent-1);
+  border-color: rgba(0,212,255,0.25);
+}
 /* ══════════════════════════
    RESPONSIVE
    Ajustes para pantallas pequeñas.

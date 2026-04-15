@@ -135,3 +135,11 @@ function confirmDelete(msg, cb) {
   // Abre el modal de confirmación
   openModal('modal-confirm');
 }
+
+function goInicio() {
+  navigate('dashboard');
+}
+
+function goCreditos() {
+  alert("Desarrollado por Sergio Velasco 🚀");
+}

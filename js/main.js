@@ -22,3 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
   orbPurple.className = 'orb-purple';   // Clase definida en style1.css
   document.body.appendChild(orbPurple);
 });
+
+function goInicio() {
+  navigate('dashboard');
+}
+
+function goCreditos() {
+  alert("Desarrollado por Sergio Velasco 🚀");
+}
