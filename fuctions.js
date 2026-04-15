@@ -1,356 +1,256 @@
-/* ═══════════════════════════════════════════════
-   CampusBuild — Space Landing Page
-   fuctions.js  ─  Canvas espacial interactivo 3D
-═══════════════════════════════════════════════ */
+// ══════════════════════════════════════════════════════════════════
+//  FONDO ANIMADO — Canvas 2D con orbes, partículas y constelaciones
+// ══════════════════════════════════════════════════════════════════
 
-'use strict';
+(function initBackground() {
+  const canvas = document.getElementById('galaxy-canvas');
+  const ctx = canvas.getContext('2d');
 
-/* ── Refs ── */
-const canvas = document.getElementById('space');
-const ctx    = canvas.getContext('2d');
-
-/* ── Estado global ── */
-let W, H;
-let stars      = [];
-let shooters   = [];
-let planets    = [];
-let mouse      = { x: 0, y: 0 };
-let currentOff = { x: 0, y: 0 };
-
-/* ══════════════════════════════════
-   RESIZE
-══════════════════════════════════ */
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-  mouse.x = W / 2;
-  mouse.y = H / 2;
-}
-
-/* ══════════════════════════════════
-   ESTRELLAS
-══════════════════════════════════ */
-function makeStars() {
-  stars = [];
-  for (let i = 0; i < 380; i++) {
-    const layer = Math.random();
-    stars.push({
-      x:     Math.random() * W,
-      y:     Math.random() * H,
-      r:     Math.random() * 1.6 + 0.15,
-      alpha: Math.random() * 0.6 + 0.2,
-      phase: Math.random() * Math.PI * 2,
-      freq:  Math.random() * 0.018 + 0.004,
-      layer,
-      hue:   Math.random() < 0.7 ? 0 : (Math.random() < 0.5 ? 220 : 45),
-      sat:   Math.random() < 0.7 ? 0 : Math.round(Math.random() * 40 + 20),
-    });
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
   }
-}
+  resize();
+  window.addEventListener('resize', resize);
 
-function drawStars() {
-  for (const s of stars) {
-    s.phase += s.freq;
-    const a  = s.alpha * (0.55 + 0.45 * Math.sin(s.phase));
-    const sx = s.x + currentOff.x * s.layer * 0.6;
-    const sy = s.y + currentOff.y * s.layer * 0.6;
-    ctx.beginPath();
-    ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = s.hue === 0
-      ? `rgba(255,255,255,${a.toFixed(3)})`
-      : `hsla(${s.hue},${s.sat}%,90%,${a.toFixed(3)})`;
-    ctx.fill();
-  }
-}
+  // ── Estrellas ──────────────────────────────────────────────────
+  const STAR_COUNT = 220;
+  const stars = Array.from({ length: STAR_COUNT }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    r: Math.random() * 1.4 + 0.3,
+    alpha: Math.random() * 0.7 + 0.3,
+    phase: Math.random() * Math.PI * 2,
+  }));
 
-/* ══════════════════════════════════
-   ESTRELLAS FUGACES
-══════════════════════════════════ */
-function spawnShooter() {
-  const x  = Math.random() * W;
-  const y  = Math.random() * H * 0.5;
-  const vx = Math.random() * 6 + 3;
-  const vy = Math.random() * 3 + 1;
-  shooters.push({ x, y, vx, vy, len: Math.random() * 80 + 40, life: 1 });
-}
+  // ── Orbes de luz ───────────────────────────────────────────────
+  const orbs = [
+    { cx: 0.12, cy: 0.25, rx: 380, ry: 260, color: '26,111,255',  alpha: 0.20 },
+    { cx: 0.78, cy: 0.65, rx: 420, ry: 300, color: '0,170,255',   alpha: 0.16 },
+    { cx: 0.50, cy: 0.88, rx: 500, ry: 220, color: '45,138,255',  alpha: 0.15 },
+    { cx: 0.88, cy: 0.12, rx: 300, ry: 300, color: '77,166,255',  alpha: 0.17 },
+    { cx: 0.35, cy: 0.48, rx: 280, ry: 180, color: '10,61,204',   alpha: 0.19 },
+    { cx: 0.62, cy: 0.30, rx: 240, ry: 200, color: '110,198,255', alpha: 0.11 },
+  ];
 
-function drawShooters() {
-  for (let i = shooters.length - 1; i >= 0; i--) {
-    const s = shooters[i];
-    s.x   += s.vx;
-    s.y   += s.vy;
-    s.life -= 0.025;
-    if (s.life <= 0) { shooters.splice(i, 1); continue; }
+  // ── Partículas flotantes ───────────────────────────────────────
+  const PART_COUNT = 60;
+  const particles = Array.from({ length: PART_COUNT }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vy: -(Math.random() * 0.4 + 0.1),
+    vx: (Math.random() - 0.5) * 0.18,
+    r: Math.random() * 1.8 + 0.5,
+    alpha: Math.random() * 0.6 + 0.2,
+    life: Math.random(),
+  }));
 
-    const grad = ctx.createLinearGradient(
-      s.x - s.len, s.y - s.vy * (s.len / s.vx), s.x, s.y
-    );
-    grad.addColorStop(0, `rgba(255,255,255,0)`);
-    grad.addColorStop(1, `rgba(255,255,255,${(s.life * 0.9).toFixed(2)})`);
-    ctx.strokeStyle = grad;
-    ctx.lineWidth   = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(s.x - s.len, s.y - s.vy * (s.len / s.vx));
-    ctx.lineTo(s.x, s.y);
-    ctx.stroke();
-  }
-}
+  // ── Nodos de constelación ──────────────────────────────────────
+  const NODE_COUNT = 40;
+  const nodes = Array.from({ length: NODE_COUNT }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight,
+    vx: (Math.random() - 0.5) * 0.28,
+    vy: (Math.random() - 0.5) * 0.28,
+  }));
+  const MAX_DIST = 160;
 
-/* ══════════════════════════════════
-   PLANETAS
-══════════════════════════════════ */
-const PLANET_DEFS = [
-  /* Planeta rosa-magenta grande (top-left) */
-  {
-    cx: 0.10, cy: 0.15, r: 58,
-    colors: ['#d45a8a','#c0396e','#7a1a40'],
-    rings: false, moons: 0, layer: 0.25,
-    bands: [
-      { offset: -0.12, opacity: 0.12 },
-      { offset:  0.08, opacity: 0.09 },
-      { offset:  0.28, opacity: 0.07 },
-    ],
-  },
-  /* Saturno naranja con anillos (top-right) */
-  {
-    cx: 0.84, cy: 0.20, r: 44,
-    colors: ['#e8a030','#d07818','#7a3c00'],
-    rings: true,  moons: 0, layer: 0.45,
-    bands: [
-      { offset: -0.10, opacity: 0.14 },
-      { offset:  0.12, opacity: 0.10 },
-      { offset:  0.30, opacity: 0.07 },
-    ],
-  },
-  /* Planeta azul con luna (bottom-right) */
-  {
-    cx: 0.74, cy: 0.80, r: 32,
-    colors: ['#3388cc','#1a5588','#0a2244'],
-    rings: false, moons: 1, layer: 0.65,
-    bands: [
-      { offset: -0.08, opacity: 0.10 },
-      { offset:  0.14, opacity: 0.08 },
-    ],
-  },
-  /* Pequeño planeta verde (bottom-left) */
-  {
-    cx: 0.14, cy: 0.80, r: 20,
-    colors: ['#44aa66','#226644','#0d3322'],
-    rings: false, moons: 0, layer: 0.80,
-    bands: [
-      { offset:  0.05, opacity: 0.10 },
-    ],
-  },
-  /* Pequeño planeta marrón rojizo (top-center) */
-  {
-    cx: 0.50, cy: 0.05, r: 16,
-    colors: ['#bb5533','#882211','#441100'],
-    rings: false, moons: 0, layer: 0.35,
-    bands: [],
-  },
-];
+  // ── Mouse parallax ─────────────────────────────────────────────
+  let mx = 0.5, my = 0.5;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX / window.innerWidth;
+    my = e.clientY / window.innerHeight;
+  });
 
-function makePlanets() {
-  planets = PLANET_DEFS.map(p => ({ ...p }));
-}
+  let t = 0;
 
-/* ── Dibujar un planeta ── */
-function drawPlanet(p) {
-  const x = p.cx * W + currentOff.x * p.layer;
-  const y = p.cy * H + currentOff.y * p.layer;
-  const r = p.r;
+  function draw() {
+    t += 0.012;
+    const W = canvas.width;
+    const H = canvas.height;
 
-  ctx.save();
+    // ── Fondo base oscuro ──────────────────────────────────────
+    ctx.fillStyle = '#010a16';
+    ctx.fillRect(0, 0, W, H);
 
-  /* Halo atmosférico */
-  const atm = ctx.createRadialGradient(x, y, r * 0.7, x, y, r * 1.35);
-  atm.addColorStop(0, 'rgba(0,0,0,0)');
-  atm.addColorStop(1, `${p.colors[0]}22`);
-  ctx.beginPath();
-  ctx.arc(x, y, r * 1.35, 0, Math.PI * 2);
-  ctx.fillStyle = atm;
-  ctx.fill();
+    // ── Orbes de luz pulsantes ─────────────────────────────────
+    orbs.forEach((o, i) => {
+      const pulse = 1 + 0.09 * Math.sin(t * 0.65 + i * 1.4);
+      const px = (o.cx + (mx - 0.5) * 0.05) * W;
+      const py = (o.cy + (my - 0.5) * 0.04) * H;
+      const rx = o.rx * pulse;
+      const ry = o.ry * pulse;
 
-  /* Anillos detrás (Saturno) */
-  if (p.rings) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(1, 0.28);
-    for (let layer = 0; layer < 3; layer++) {
-      const innerR = r * (1.0 + layer * 0.22);
-      const outerR = r * (1.22 + layer * 0.22);
-      const rg = ctx.createRadialGradient(0, 0, innerR, 0, 0, outerR);
-      rg.addColorStop(0,   `${p.colors[0]}cc`);
-      rg.addColorStop(0.5, `${p.colors[1]}88`);
-      rg.addColorStop(1,   'rgba(0,0,0,0)');
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.scale(1, ry / rx);
+      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+      grad.addColorStop(0,   `rgba(${o.color},${o.alpha})`);
+      grad.addColorStop(0.45,`rgba(${o.color},${(o.alpha * 0.35).toFixed(3)})`);
+      grad.addColorStop(1,   `rgba(${o.color},0)`);
       ctx.beginPath();
-      ctx.arc(0, 0, outerR, 0, Math.PI * 2);
-      ctx.fillStyle = rg;
+      ctx.arc(0, 0, rx, 0, Math.PI * 2);
+      ctx.fillStyle = grad;
       ctx.fill();
+      ctx.restore();
+    });
+
+    // ── Líneas de constelación ─────────────────────────────────
+    nodes.forEach(n => {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+    });
+
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < MAX_DIST) {
+          const a = (1 - dist / MAX_DIST) * 0.28;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.strokeStyle = `rgba(74,166,255,${a})`;
+          ctx.lineWidth = 0.7;
+          ctx.stroke();
+        }
+      }
     }
-    ctx.restore();
-  }
 
-  /* Esfera base */
-  const sph = ctx.createRadialGradient(x - r * 0.28, y - r * 0.28, r * 0.04, x, y, r);
-  sph.addColorStop(0,    p.colors[0]);
-  sph.addColorStop(0.55, p.colors[1]);
-  sph.addColorStop(1,    p.colors[2]);
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = sph;
-  ctx.fill();
+    nodes.forEach(n => {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 1.6, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(110,198,255,0.6)';
+      ctx.fill();
+    });
 
-  /* Clip para efectos internos */
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.clip();
+    // ── Estrellas titilantes ────────────────────────────────────
+    stars.forEach(s => {
+      const a = s.alpha * (0.55 + 0.45 * Math.sin(t * 1.2 + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(200,225,255,${a})`;
+      ctx.fill();
+    });
 
-  /* Bandas superficiales */
-  for (const band of p.bands) {
-    ctx.beginPath();
-    ctx.ellipse(x, y + r * band.offset, r * 0.98, r * (0.12 + Math.abs(band.offset) * 0.3), 0, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0,0,0,${band.opacity})`;
-    ctx.fill();
-  }
+    // ── Partículas flotantes ────────────────────────────────────
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life += 0.0035;
+      if (p.y < -10 || p.life > 1) {
+        p.x = Math.random() * W;
+        p.y = H + 5;
+        p.life = 0;
+        p.alpha = Math.random() * 0.6 + 0.2;
+      }
+      const a = p.alpha * Math.sin(p.life * Math.PI);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(100,190,255,${a.toFixed(3)})`;
+      ctx.fill();
+    });
 
-  /* Sombra lateral */
-  const shadow = ctx.createRadialGradient(x + r * 0.4, y + r * 0.35, 0, x, y, r * 1.05);
-  shadow.addColorStop(0,    'rgba(0,0,0,0)');
-  shadow.addColorStop(0.55, 'rgba(0,0,0,0)');
-  shadow.addColorStop(1,    'rgba(0,0,0,0.55)');
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.fillStyle = shadow;
-  ctx.fill();
+    // ── Barridos de luz horizontal ─────────────────────────────
+    const scanY1 = H * 0.28 + Math.sin(t * 0.38) * H * 0.05;
+    const scanY2 = H * 0.65 + Math.sin(t * 0.28 + 1) * H * 0.04;
+    [scanY1, scanY2].forEach(sy => {
+      const sg = ctx.createLinearGradient(0, 0, W, 0);
+      sg.addColorStop(0,    'rgba(74,166,255,0)');
+      sg.addColorStop(0.35, 'rgba(74,166,255,0)');
+      sg.addColorStop(0.5,  'rgba(74,166,255,0.13)');
+      sg.addColorStop(0.65, 'rgba(74,166,255,0)');
+      sg.addColorStop(1,    'rgba(74,166,255,0)');
+      ctx.fillStyle = sg;
+      ctx.fillRect(0, sy - 1, W, 2);
+    });
 
-  /* Brillo especular */
-  const spec = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x - r * 0.2, y - r * 0.2, r * 0.55);
-  spec.addColorStop(0,   'rgba(255,255,255,0.22)');
-  spec.addColorStop(0.4, 'rgba(255,255,255,0.06)');
-  spec.addColorStop(1,   'rgba(255,255,255,0)');
-  ctx.fillStyle = spec;
-  ctx.fill();
-
-  ctx.restore(); /* fin clip */
-
-  /* Borde sutil */
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-  ctx.lineWidth   = 1;
-  ctx.stroke();
-
-  /* Luna */
-  if (p.moons) {
-    const mx = x + r * 1.6;
-    const my = y - r * 0.55;
-    const mr = r * 0.24;
-    const mg = ctx.createRadialGradient(mx - mr * 0.3, my - mr * 0.3, mr * 0.05, mx, my, mr);
-    mg.addColorStop(0, '#ccddee');
-    mg.addColorStop(1, '#667788');
-    ctx.beginPath();
-    ctx.arc(mx, my, mr, 0, Math.PI * 2);
-    ctx.fillStyle = mg;
-    ctx.fill();
-    const ms = ctx.createRadialGradient(mx + mr * 0.35, my + mr * 0.35, 0, mx, my, mr);
-    ms.addColorStop(0.5, 'rgba(0,0,0,0)');
-    ms.addColorStop(1,   'rgba(0,0,0,0.4)');
-    ctx.fillStyle = ms;
-    ctx.fill();
-  }
-
-  ctx.restore();
-}
-
-/* ══════════════════════════════════
-   NEBULOSA DE FONDO
-══════════════════════════════════ */
-function drawNebula() {
-  const ng = ctx.createRadialGradient(W * 0.5, H * 0.5, 0, W * 0.5, H * 0.5, W * 0.6);
-  ng.addColorStop(0,    'rgba(18, 8, 55, 0.22)');
-  ng.addColorStop(0.45, 'rgba(8,  4, 30, 0.10)');
-  ng.addColorStop(1,    'rgba(0,  0,  0, 0)');
-  ctx.fillStyle = ng;
-  ctx.fillRect(0, 0, W, H);
-
-  const nl = ctx.createRadialGradient(W * 0.1, H * 0.4, 0, W * 0.1, H * 0.4, W * 0.35);
-  nl.addColorStop(0, 'rgba(60,10,100,0.12)');
-  nl.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = nl;
-  ctx.fillRect(0, 0, W, H);
-
-  const nr = ctx.createRadialGradient(W * 0.9, H * 0.6, 0, W * 0.9, H * 0.6, W * 0.32);
-  nr.addColorStop(0, 'rgba(0,40,90,0.10)');
-  nr.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = nr;
-  ctx.fillRect(0, 0, W, H);
-}
-
-/* ══════════════════════════════════
-   RENDER PRINCIPAL
-══════════════════════════════════ */
-function draw() {
-  ctx.fillStyle = '#00000a';
-  ctx.fillRect(0, 0, W, H);
-  drawNebula();
-  drawStars();
-  drawShooters();
-  for (const p of planets) drawPlanet(p);
-}
-
-/* ══════════════════════════════════
-   LOOP
-══════════════════════════════════ */
-let lastShoot = 0;
-
-function loop(ts) {
-  const dx = (mouse.x - W / 2) * 0.038;
-  const dy = (mouse.y - H / 2) * 0.038;
-  currentOff.x += (dx - currentOff.x) * 0.045;
-  currentOff.y += (dy - currentOff.y) * 0.045;
-
-  if (ts - lastShoot > (Math.random() * 4000 + 3000)) {
-    spawnShooter();
-    lastShoot = ts;
+    requestAnimationFrame(draw);
   }
 
   draw();
-  requestAnimationFrame(loop);
-}
+})();
 
-/* ══════════════════════════════════
-   EVENTOS
-══════════════════════════════════ */
-window.addEventListener('mousemove', e => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-});
+// ══════════════════════════════════════════════════════════════════
+//  OCULTAR BADGE "Built with Spline" — método agresivo
+// ══════════════════════════════════════════════════════════════════
 
-window.addEventListener('deviceorientation', e => {
-  if (e.gamma !== null && e.beta !== null) {
-    mouse.x = W / 2 + (e.gamma / 45) * W * 0.4;
-    mouse.y = H / 2 + ((e.beta - 45) / 45) * H * 0.3;
+(function hideSplineBadge() {
+
+  function applyHide() {
+    // 1. Shadow DOM del viewer
+    const viewer = document.querySelector('spline-viewer');
+    if (viewer && viewer.shadowRoot) {
+      const sr = viewer.shadowRoot;
+      if (!sr.querySelector('#cb-hide')) {
+        const st = document.createElement('style');
+        st.id = 'cb-hide';
+        st.textContent = `
+          #logo, [id*="logo"], [class*="logo"],
+          [id*="badge"], [class*="badge"],
+          [id*="built"], [class*="built"],
+          [id*="watermark"], [class*="watermark"],
+          a[href*="spline"] { display:none!important; opacity:0!important; }
+        `;
+        sr.appendChild(st);
+      }
+    }
+
+    // 2. Overlay físico de color sólido en esquina inferior derecha
+    const container = document.querySelector('.hero-spline');
+    if (container && !container.querySelector('.cb-kill')) {
+      container.style.position = 'relative';
+      container.style.overflow = 'hidden';
+
+      const kill = document.createElement('div');
+      kill.className = 'cb-kill';
+      // Color exacto del fondo de la página para que sea invisible
+      kill.style.cssText = [
+        'position:absolute',
+        'bottom:0',
+        'right:0',
+        'width:230px',
+        'height:56px',
+        'background:#010a16',
+        'z-index:99999',
+        'pointer-events:none',
+      ].join(';');
+      container.appendChild(kill);
+    }
   }
-}, { passive: true });
 
-window.addEventListener('touchmove', e => {
-  const t = e.touches[0];
-  mouse.x = t.clientX;
-  mouse.y = t.clientY;
-}, { passive: true });
+  // Ejecutar muchas veces mientras Spline carga
+  applyHide();
+  [200, 500, 900, 1500, 2500, 4000, 6000].forEach(ms =>
+    setTimeout(applyHide, ms)
+  );
 
-window.addEventListener('resize', () => {
-  resize();
-  makeStars();
-  makePlanets();
+  // MutationObserver por si el viewer se actualiza tarde
+  const obs = new MutationObserver(applyHide);
+  obs.observe(document.body, { childList: true, subtree: true });
+  setTimeout(() => obs.disconnect(), 20000);
+})();
+
+// ══════════════════════════════════════════════════════════════════
+//  DOTS DE NAVEGACIÓN
+// ══════════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+    dot.classList.add('active');
+  });
 });
 
-/* ══════════════════════════════════
-   INICIO
-══════════════════════════════════ */
-resize();
-makeStars();
-makePlanets();
-requestAnimationFrame(loop);
+// ══════════════════════════════════════════════════════════════════
+//  BOTONES FEEDBACK
+// ══════════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.btn-primary, .btn-secondary').forEach(btn => {
+  btn.addEventListener('click', function () {
+    this.style.transform = 'scale(0.95)';
+    setTimeout(() => { this.style.transform = ''; }, 150);
+  });
+});
