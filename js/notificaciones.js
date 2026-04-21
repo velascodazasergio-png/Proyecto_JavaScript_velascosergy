@@ -69,3 +69,45 @@ function notifMeta(tipo) {
     hito:       { icon: '🏆', color: '#f59e0b', label: 'Hito'        },
   }[tipo] || { icon: '🔔', color: '#8aaed4', label: 'Aviso' };
 }
+
+// ── Render lista ────────────────────────────────────────────
+function notifRenderLista() {
+  const lista = document.getElementById('notif-lista');
+  if (!lista) return;
+  const all = notifGetAll();
+
+  if (!all.length) {
+    lista.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;padding:32px 16px;color:#64748b;gap:8px;font-size:.85rem;">
+        <span style="font-size:2rem;opacity:.3">🔔</span>
+        <p>Sin notificaciones</p>
+      </div>`;
+    return;
+  }
+
+  lista.innerHTML = all.map(n => {
+    const m    = notifMeta(n.tipo);
+    const d    = new Date(n.fecha);
+    const hora = d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+    const dia  = d.toLocaleDateString('es', { day: '2-digit', month: 'short' });
+    return `
+      <div class="notif-item ${n.leida ? '' : 'notif-unread'}">
+        <span class="notif-ico" style="background:${m.color}22;color:${m.color}">${m.icon}</span>
+        <div class="notif-body">
+          <span class="notif-lbl" style="color:${m.color}">${m.label}</span>
+          <p class="notif-msg">${n.mensaje}</p>
+          <span class="notif-time">${dia} · ${hora}</span>
+        </div>
+        <div class="notif-acts">
+          <button onclick="notifToggle(${n.id})" title="${n.leida ? 'No leída' : 'Leída'}"
+            style="background:none;border:none;cursor:pointer;color:#60a5fa;font-size:.8rem;padding:2px 5px;border-radius:4px;">
+            ${n.leida ? '◯' : '●'}
+          </button>
+          <button onclick="notifEliminar(${n.id})" title="Eliminar"
+            style="background:none;border:none;cursor:pointer;color:#f87171;font-size:.8rem;padding:2px 5px;border-radius:4px;">
+            ✕
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
