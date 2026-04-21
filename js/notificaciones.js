@@ -237,3 +237,173 @@ function notifInyectar() {
         transition: background .2s, transform .15s;
       }
       #notif-bell:hover { background: rgba(59,130,246,.25); transform: scale(1.08); }
+
+      #notif-badge {
+        position: absolute; top: -5px; right: -5px;
+        background: #ef4444; color: #fff;
+        font-size: 9px; font-weight: 700;
+        min-width: 17px; height: 17px; border-radius: 999px;
+        display: flex; align-items: center; justify-content: center;
+        padding: 0 3px; border: 2px solid #0f172a;
+        pointer-events: none;
+        animation: notifPulse 1.8s ease-in-out infinite;
+      }
+      @keyframes notifPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.2)} }
+
+      #notif-panel {
+        position: fixed;
+        top: 62px; right: 16px;
+        width: 310px; max-height: 430px;
+        background: #111827;
+        border: 1px solid rgba(59,130,246,.22);
+        border-radius: 14px;
+        z-index: 99999;
+        display: flex; flex-direction: column;
+        box-shadow: 0 12px 40px rgba(0,0,0,.6);
+        opacity: 0; pointer-events: none;
+        transform: translateY(-8px) scale(.97);
+        transition: opacity .2s ease, transform .2s ease;
+        overflow: hidden;
+      }
+      #notif-panel.notif-open {
+        opacity: 1; pointer-events: all;
+        transform: translateY(0) scale(1);
+      }
+
+      .notif-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 14px 10px;
+        font-size: .88rem; font-weight: 700; color: #f1f5f9;
+        border-bottom: 1px solid rgba(255,255,255,.07);
+        background: rgba(59,130,246,.08); flex-shrink: 0;
+      }
+      .notif-btn-todas {
+        font-size: .63rem; color: #60a5fa; background: none;
+        border: none; cursor: pointer; padding: 2px 7px;
+        border-radius: 4px; transition: background .15s;
+      }
+      .notif-btn-todas:hover { background: rgba(96,165,250,.14); }
+
+      #notif-lista { overflow-y: auto; flex: 1; }
+      #notif-lista::-webkit-scrollbar { width: 4px; }
+      #notif-lista::-webkit-scrollbar-thumb { background: rgba(59,130,246,.3); border-radius: 2px; }
+
+      .notif-item {
+        display: flex; align-items: flex-start; gap: 9px;
+        padding: 10px 13px;
+        border-bottom: 1px solid rgba(255,255,255,.05);
+        position: relative; transition: background .15s;
+      }
+      .notif-item:last-child { border-bottom: none; }
+      .notif-item:hover { background: rgba(255,255,255,.04); }
+      .notif-item.notif-unread { background: rgba(59,130,246,.09); }
+      .notif-item.notif-unread::before {
+        content:''; position:absolute; left:0; top:0; bottom:0;
+        width:3px; background:#3b82f6; border-radius:0 2px 2px 0;
+      }
+      .notif-ico {
+        width:30px; height:30px; border-radius:7px; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center; font-size:.9rem; margin-top:1px;
+      }
+      .notif-body { flex:1; min-width:0; }
+      .notif-lbl { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; display:block; }
+      .notif-msg { font-size:.78rem; color:#cbd5e1; margin:2px 0 3px; line-height:1.4;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .notif-time { font-size:.62rem; color:#64748b; }
+      .notif-acts { display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+
+      @media(max-width:600px){
+        #notif-panel { right:6px; left:6px; width:auto; top:56px; }
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  notifActualizarBadge();
+  notifRenderLista();
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PARCHES: interceptar saveActividad y saveHito
+//  para generar notificaciones automáticamente
+// ═══════════════════════════════════════════════════════════
+function notifPatch() {
+
+  // ── Patch saveActividad ──
+  const _origSaveActividad = window.saveActividad;
+  window.saveActividad = function () {
+    const editId        = document.getElementById('a-edit-id').value;
+    const nuevoEstado   = document.getElementById('a-estado').value;
+    const nombre        = document.getElementById('a-nombre').value.trim();
+    const responsableId = document.getElementById('a-responsable').value;
+    const proyectoId    = parseInt(document.getElementById('a-proyecto').value);
+
+    // Guardar estado anterior si es edición
+    let estadoAntes = null;
+    let responsableAntes = null;
+    if (editId) {
+      const act = store.actividades.find(a => a.id == editId);
+      if (act) { estadoAntes = act.estado; responsableAntes = act.responsableId; }
+    }
+
+    // Ejecutar lógica original
+    _origSaveActividad();
+
+    // Generar notificaciones según qué cambió
+    if (!editId) {
+      // Nueva actividad con responsable
+      if (responsableId) {
+        notifCrear('asignada', `"${nombre}" asignada a ${getRecursoNombre(responsableId)}`);
+      }
+    } else {
+      // Editando: ¿cambió el responsable?
+      if (responsableId && responsableId !== responsableAntes) {
+        notifCrear('asignada', `"${nombre}" reasignada a ${getRecursoNombre(responsableId)}`);
+      }
+      // ¿Cambió a Terminada?
+      if (nuevoEstado === 'Terminada' && estadoAntes !== 'Terminada') {
+        notifCrear('completada', `La actividad "${nombre}" ha sido terminada.`);
+        // Chequear si todas las actividades del proyecto están terminadas → hito automático
+        const actsProyecto = store.actividades.filter(a => a.proyectoId == proyectoId);
+        const todasOk = actsProyecto.length > 0 && actsProyecto.every(a => a.estado === 'Terminada');
+        if (todasOk) {
+          store.hitos
+            .filter(h => h.proyectoId == proyectoId && h.estado !== 'Cumplido')
+            .forEach(h => notifCrear('hito', `Hito alcanzado: "${h.nombre}"`));
+        }
+      }
+    }
+  };
+
+  // ── Patch saveHito ──
+  const _origSaveHito = window.saveHito;
+  window.saveHito = function () {
+    const editId      = document.getElementById('h-edit-id').value;
+    const nuevoEstado = document.getElementById('h-estado').value;
+    const nombre      = document.getElementById('h-nombre').value.trim();
+    let estadoAntes   = null;
+    if (editId) {
+      const h = store.hitos.find(h => h.id == editId);
+      if (h) estadoAntes = h.estado;
+    }
+
+    _origSaveHito();
+
+    if (editId && nuevoEstado === 'Cumplido' && estadoAntes !== 'Cumplido') {
+      notifCrear('hito', `Hito alcanzado: "${nombre}"`);
+    }
+  };
+}
+
+// ── Init ────────────────────────────────────────────────────
+(function () {
+  function init() {
+    notifInyectar();
+    notifPatch();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
